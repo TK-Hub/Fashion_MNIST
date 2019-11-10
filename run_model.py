@@ -17,23 +17,48 @@ from PIL import Image
 
 
 def preprocess_images(path):
-    onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-    for path_to_img in onlyfiles:
+    onlyfiles = [f for f in os.listdir(path) if isfile(join(path, f))]
+    imgs=[]
+    for img_name in onlyfiles:
+        print(path, img_name)
+        path_to_img = os.path.join(path, img_name)
         img = Image.open(path_to_img).convert('L')
-        img.resize(28, 28)
+        img = img.resize((28, 28))
+        arr = np.array(img)
+        arr = 1 - (arr/255)
+        arr=arr.tolist()
+        #print(arr)
 
-
-        
-        print(img)
-
-        '''plt.figure()
-        plt.imshow()
+        plt.figure()
+        plt.imshow(arr)
         plt.colorbar()
         plt.grid(False)
-        plt.show()'''
+        plt.show()
+        imgs.append(arr)
+    return imgs
+
+
+#==================================================================================================
+#                       Main Code
+#==================================================================================================
 
 if __name__ == "__main__":
-    
-    path='C:/Users/Tim/Desktop/Documents/02_Python_Projects/07_TF_Tutorials/01_Basic_Image_Classification/testdata'
+    class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
-    preprocess_images(path)
+    path_images='C:/Users/Tim/Desktop/Documents/02_Python_Projects/07_TF_Tutorials/01_Basic_Image_Classification/testdata'
+    path_model='C:/Users/Tim/Desktop/Documents/02_Python_Projects/07_TF_Tutorials/01_Basic_Image_Classification/Fashion_MNIST/trained_model.h5'
+    images=preprocess_images(path_images)
+
+    # Recreate the exact same model, including its weights and the optimizer
+    new_model = tf.keras.models.load_model(path_model)
+
+    # Show the model architecture
+    new_model.summary()
+    #print(images)
+    predictions = new_model.predict(images)
+    for i in predictions:
+        percentages, prediction = i, np.argmax(i),
+        print(class_names[prediction])
+
+
